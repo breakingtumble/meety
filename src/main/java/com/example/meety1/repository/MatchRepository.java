@@ -30,7 +30,7 @@ public interface MatchRepository extends JpaRepository<Match, MatchKey> {
             "UNION ALL " +
             "SELECT ur " +
             "FROM Match ur " +
-            "JOIN ur.user2 n " +
+            "JOIN ur.user1 n " +
             "where (ur.id.userSecondId = :myUserId) AND ur.friends = true AND ur.declined != true")
     List<Match> getAllUserMatchesEntityList(@Param("myUserId") Long input);
 
