@@ -5,6 +5,7 @@ import com.example.meety1.dto.UserMatchDto;
 import com.example.meety1.entity.Match;
 import com.example.meety1.entity.MatchKey;
 import com.example.meety1.entity.User;
+import com.example.meety1.exception.InviteAlreadyExistsException;
 import com.example.meety1.exception.NoInviteFoundException;
 import com.example.meety1.repository.MatchRepository;
 import com.example.meety1.repository.UserRepository;
@@ -81,9 +82,10 @@ public class MatchServiceImpl implements MatchService {
             responderId = temp;
         }
         MatchKey id = new MatchKey(requesterId, responderId);
-        matchRepository.findById(id)
+        Match matchToDecline = matchRepository.findById(id)
                 .orElseThrow(() -> new NoInviteFoundException("There is no such match request to decline"));
-        matchRepository.deleteById(id);
+        matchToDecline.setDeclined(true);
+        matchRepository.save(matchToDecline);
     }
 
     @Override
@@ -101,7 +103,7 @@ public class MatchServiceImpl implements MatchService {
         User user2 = userRepository.findById(responderId).orElseThrow(() -> new RuntimeException("Username not found"));
 
         if (matchRepository.findById(new MatchKey(requesterId, responderId)).isPresent()) {
-            throw new RuntimeException("You have already sent the match request");
+            throw new InviteAlreadyExistsException("Match already exists");
         }
 
         Match match = new Match();
@@ -112,6 +114,7 @@ public class MatchServiceImpl implements MatchService {
         match.setUser1(user1);
         match.setUser2(user2);
         match.setFriends(false);
+        match.setDeclined(false);
         if (mixed) {
             match.setPendingSecondFirst(true);
             match.setPendingFirstSecond(false);

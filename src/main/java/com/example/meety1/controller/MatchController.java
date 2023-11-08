@@ -4,6 +4,7 @@ import com.example.meety1.dto.PendingMatchDto;
 import com.example.meety1.dto.ResponseDto;
 import com.example.meety1.dto.UserMatchDto;
 import com.example.meety1.entity.Match;
+import com.example.meety1.exception.InviteAlreadyExistsException;
 import com.example.meety1.exception.NoInviteFoundException;
 import com.example.meety1.repository.MatchRepository;
 import com.example.meety1.repository.UserRepository;
@@ -68,13 +69,13 @@ public class MatchController {
                                              @RequestParam("responderId") Long responderId) {
         Match match = matchService.sendMatchInvite(requesterId, responderId);
         if (match != null) {
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("Invite was successfully sent"));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @ExceptionHandler(NoInviteFoundException.class)
-    public ResponseEntity<ResponseDto> handleNoInviteFoundException(NoInviteFoundException e) {
+    @ExceptionHandler({NoInviteFoundException.class, InviteAlreadyExistsException.class})
+    public ResponseEntity<ResponseDto> handleNoInviteFoundException(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseDto(e.getMessage()));
     }
 }

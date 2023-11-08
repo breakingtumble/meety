@@ -31,4 +31,6 @@ public class Match {
     Boolean pendingSecondFirst;
 
     Boolean friends;
+
+    Boolean declined;
 }
