@@ -62,7 +62,6 @@ public class MatchController {
     }
 
 
-
     // TODO: After implementing Spring Security, we should change requesterId to Principal id
     @PostMapping("/send-invite")
     public ResponseEntity<?> sendMatchInvite(@RequestParam("requesterId") Long requesterId,

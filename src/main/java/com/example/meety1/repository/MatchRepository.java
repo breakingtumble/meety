@@ -5,7 +5,6 @@ import com.example.meety1.dto.UserMatchDto;
 import com.example.meety1.entity.Match;
 import com.example.meety1.entity.MatchKey;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
