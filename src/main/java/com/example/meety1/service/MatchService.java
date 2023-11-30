@@ -9,6 +9,7 @@ import java.util.List;
 public interface MatchService {
     // TODO: After implementing security change id parameter to no param function and call SecurityContext
     // TODO: to get user_id
+    List<Match> getUserMatchEntities(Long id);
     List<UserMatchDto> getUserMatches(Long id);
 
     List<PendingMatchDto> getPendingMatches(Long id);

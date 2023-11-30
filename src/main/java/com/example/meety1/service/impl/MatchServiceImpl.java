@@ -27,6 +27,11 @@ public class MatchServiceImpl implements MatchService {
     private UserRepository userRepository;
 
     @Override
+    public List<Match> getUserMatchEntities(Long id) {
+        return matchRepository.getAllUserMatchesEntityList(id);
+    }
+
+    @Override
     public List<UserMatchDto> getUserMatches(Long id) {
         List<Match> userMatches = matchRepository.getAllUserMatchesEntityList(id);
         List<UserMatchDto> dtos = new ArrayList<>();

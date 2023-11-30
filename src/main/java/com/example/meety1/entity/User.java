@@ -25,6 +25,9 @@ public class User {
 
     private String password;
 
+    @Column(name = "counted_rows")
+    private Long countedRowsIndex;
+
     // Unidirectional association
     @ManyToMany
     @JoinTable(name = "users_roles",
