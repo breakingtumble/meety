@@ -1,5 +1,6 @@
 package com.example.meety1.service.impl;
 
+import com.example.meety1.dto.UserOpenInfoDto;
 import com.example.meety1.entity.Match;
 import com.example.meety1.entity.User;
 import com.example.meety1.exception.UserNotFoundException;
@@ -21,7 +22,7 @@ public class UserServiceImpl implements UserService {
     private MatchService matchService;
 
     @Override
-    public List<User> getNextTenUsers(Long requesterId) {
+    public List<UserOpenInfoDto> getNextTenUsers(Long requesterId) {
         Optional<User> optionalUser = userRepository.findById(requesterId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -40,12 +41,20 @@ public class UserServiceImpl implements UserService {
             if (users.size() == 10) {
                 user.setCountedRowsIndex(user.getCountedRowsIndex() + 10);
                 userRepository.save(user);
-                return users;
+                return users.stream().map((userToMap ->
+                    new UserOpenInfoDto(userToMap.getId(), userToMap.getFirstName(),
+                            userToMap.getLastName(), userToMap.getEmail(),
+                            userToMap.getOpenInfo(), userToMap.getInterests())
+                )).toList();
             }
             if (users.size() < 10 && users.size() > 0) {
                 user.setCountedRowsIndex(0L);
                 userRepository.save(user);
-                return users;
+                return users.stream().map((userToMap ->
+                        new UserOpenInfoDto(userToMap.getId(), userToMap.getFirstName(),
+                                userToMap.getLastName(), userToMap.getEmail(),
+                                userToMap.getOpenInfo(), userToMap.getInterests())
+                )).toList();
             }
             throw new UserNotFoundException("Can't find recommendations to show");
         }

@@ -17,14 +17,7 @@ public class PendingMatchDto {
     private String email;
     private String firstName;
     private String lastName;
+    private String openInfo;
     private List<Interest> interests;
 
-    public PendingMatchDto(Long userId, String email, String firstName, String lastName) {
-        this.userId = userId;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
-
-    // TODO: Add public info! Don't forget to add specific param to sql query!
 }

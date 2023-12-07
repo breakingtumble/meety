@@ -17,14 +17,9 @@ public class UserMatchDto {
     private String email;
     private String firstName;
     private String lastName;
+    private String openInfo;
+    private String privateInfo;
     private List<Interest> interests;
-
-    public UserMatchDto(Long userId, String email, String firstName, String lastName) {
-        this.userId = userId;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
     //TODO: Add private info field, which is only available when users have a match!
     //TODO: Also add public info. Don't forget to add specific param to sql query!
 }

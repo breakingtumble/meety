@@ -43,7 +43,9 @@ public class MatchServiceImpl implements MatchService {
                 matchedUser = match.getUser1();
             }
             dtos.add(new UserMatchDto(matchedUser.getId(), matchedUser.getEmail(),
-                    matchedUser.getFirstName(), matchedUser.getLastName(), matchedUser.getInterests()));
+                    matchedUser.getFirstName(), matchedUser.getLastName(),
+                    matchedUser.getOpenInfo(), matchedUser.getPrivateInfo(),
+                    matchedUser.getInterests()));
         }
         return dtos;
     }
@@ -60,7 +62,8 @@ public class MatchServiceImpl implements MatchService {
                 requester = pendingMatch.getUser1();
             }
             dtos.add(new PendingMatchDto(requester.getId(), requester.getEmail(),
-                    requester.getFirstName(), requester.getLastName(), requester.getInterests()));
+                    requester.getFirstName(), requester.getLastName(), requester.getOpenInfo(),
+                    requester.getInterests()));
         }
         return dtos;
     }

@@ -3,6 +3,7 @@ package com.example.meety1.controller;
 import com.example.meety1.dto.PendingMatchDto;
 import com.example.meety1.dto.ResponseDto;
 import com.example.meety1.dto.UserMatchDto;
+import com.example.meety1.dto.UserOpenInfoDto;
 import com.example.meety1.entity.Match;
 import com.example.meety1.entity.User;
 import com.example.meety1.exception.InviteAlreadyExistsException;
@@ -83,7 +84,7 @@ public class MatchController {
 
     @GetMapping("/recommendations")
     public ResponseEntity<?> getNextTenUsers(@RequestParam("requesterId") Long requesterId) {
-        List<User> users = userService.getNextTenUsers(requesterId);
+        List<UserOpenInfoDto> users = userService.getNextTenUsers(requesterId);
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 

@@ -20,14 +20,14 @@ public class User {
     private String firstName;
     @Column(name = "last_name")
     private String lastName;
-
+    @Column(name = "private_info")
+    private String privateInfo;
+    @Column(name="open_info")
+    private String openInfo;
     private String email;
-
     private String password;
-
     @Column(name = "counted_rows")
     private Long countedRowsIndex;
-
     // Unidirectional association
     @ManyToMany
     @JoinTable(name = "users_roles",
