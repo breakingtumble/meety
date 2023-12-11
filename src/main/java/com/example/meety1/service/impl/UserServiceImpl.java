@@ -3,6 +3,7 @@ package com.example.meety1.service.impl;
 import com.example.meety1.dto.UserOpenInfoDto;
 import com.example.meety1.entity.Match;
 import com.example.meety1.entity.User;
+import com.example.meety1.exception.NoRecommendationsFoundException;
 import com.example.meety1.exception.UserNotFoundException;
 import com.example.meety1.repository.UserRepository;
 import com.example.meety1.service.MatchService;
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
                                 userToMap.getOpenInfo(), userToMap.getInterests())
                 )).toList();
             }
-            throw new UserNotFoundException("Can't find recommendations to show");
+            throw new NoRecommendationsFoundException("Can't find recommendations to show");
         }
         throw new UserNotFoundException("There is no such user in the system");
     }

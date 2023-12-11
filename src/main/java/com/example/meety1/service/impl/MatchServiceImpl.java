@@ -5,8 +5,7 @@ import com.example.meety1.dto.UserMatchDto;
 import com.example.meety1.entity.Match;
 import com.example.meety1.entity.MatchKey;
 import com.example.meety1.entity.User;
-import com.example.meety1.exception.InviteAlreadyExistsException;
-import com.example.meety1.exception.NoInviteFoundException;
+import com.example.meety1.exception.*;
 import com.example.meety1.repository.MatchRepository;
 import com.example.meety1.repository.UserRepository;
 import com.example.meety1.service.MatchService;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class MatchServiceImpl implements MatchService {
@@ -33,6 +33,9 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public List<UserMatchDto> getUserMatches(Long id) {
+        if (userRepository.findById(id).isEmpty()) {
+            throw new InvalidUserIdException("Invalid user id provided.");
+        }
         List<Match> userMatches = matchRepository.getAllUserMatchesEntityList(id);
         List<UserMatchDto> dtos = new ArrayList<>();
         for (Match match : userMatches) {
@@ -53,6 +56,9 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<PendingMatchDto> getPendingMatches(Long id) {
         List<Match> pendingUserMatches = matchRepository.getPendingMatchesEntityList(id);
+        if (userRepository.findById(id).isEmpty()) {
+            throw new InvalidUserIdException("Invalid user id provided.");
+        }
         List<PendingMatchDto> dtos = new ArrayList<>();
         for (Match pendingMatch : pendingUserMatches) {
             User requester;
@@ -69,17 +75,43 @@ public class MatchServiceImpl implements MatchService {
     }
 
     // TODO: RequesterId here means Principal Id, so it should be changed to that later)
+    // Here requesterId is an id of the user who wants to accept invite from responderId
     @Override
     public Match acceptMatchByMatchKey(Long requesterId, Long responderId) {
+        if (userRepository.findById(requesterId).isEmpty()) {
+            throw new InvalidUserIdException("Invalid requester id provided.");
+        }
+        if (userRepository.findById(responderId).isEmpty()) {
+            throw new InvalidUserIdException("Invalid responder id provided.");
+        }
+        boolean keyIsReversed = false;
         if (requesterId > responderId) {
             Long temp = requesterId;
             requesterId = responderId;
             responderId = temp;
+            keyIsReversed = true;
         }
         MatchKey id = new MatchKey(requesterId, responderId);
         Match matchToAccept = matchRepository.findById(id)
-                .orElseThrow(() -> new NoInviteFoundException("There is no such match request to accept"));
-        matchToAccept.setFriends(true);
+                .orElseThrow(() -> new NoInviteFoundException("There is no such invite request to accept."));
+        if (matchToAccept.getFriends()) {
+            throw new InviteAlreadyAcceptedException("You've already accepted the invite.");
+        }
+        if (matchToAccept.getPendingFirstSecond()) {
+            if(!keyIsReversed) {
+                throw new UnableToAcceptInviteException("You are unable to accept invite that you have sent to person.");
+            } else {
+                matchToAccept.setFriends(true);
+            }
+        }
+        if (matchToAccept.getPendingSecondFirst()) {
+            if(!keyIsReversed) {
+                matchToAccept.setFriends(true);
+            }
+            else {
+                throw new UnableToAcceptInviteException("You are unable to accept invite that you have sent to person.");
+            }
+        }
         return matchRepository.save(matchToAccept);
     }
 
@@ -107,11 +139,16 @@ public class MatchServiceImpl implements MatchService {
         }
 
         // TODO: After adding spring security change exception to UsernameNotFoundException!!!
-        User user1 = userRepository.findById(requesterId).orElseThrow(() -> new RuntimeException("Username not found"));
-        User user2 = userRepository.findById(responderId).orElseThrow(() -> new RuntimeException("Username not found"));
+        User user1 = userRepository.findById(requesterId).orElseThrow(() -> new InvalidUserIdException("User not found"));
+        User user2 = userRepository.findById(responderId).orElseThrow(() -> new InvalidUserIdException("User not found"));
 
-        if (matchRepository.findById(new MatchKey(requesterId, responderId)).isPresent()) {
-            throw new InviteAlreadyExistsException("Match already exists");
+        Optional<Match> foundMatch = matchRepository.findById(new MatchKey(requesterId, responderId));
+        if (foundMatch.isPresent()) {
+            if (!foundMatch.get().getFriends()) {
+                throw new InviteAlreadyExistsException("Invite already exists.");
+            } else {
+                throw new InviteAlreadyExistsException("Match already exists.");
+            }
         }
 
         Match match = new Match();

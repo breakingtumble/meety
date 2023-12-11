@@ -1,6 +1,7 @@
 package com.example.meety1.dto;
 
 import com.example.meety1.entity.Interest;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,13 +14,19 @@ import java.util.List;
 @Getter
 @Setter
 public class UserMatchDto {
-    private Long userId;
-    private String email;
+
+    @Schema(name = "User Id", example = "1")
+    private Long id;
+    @Schema(name = "Person's first name", example = "Maria")
     private String firstName;
+    @Schema(name = "Person's last name", example = "Krushynska")
     private String lastName;
+    @Schema(name = "Person's email", example = "example@gmail.com")
+    private String email;
+    @Schema(name = "Person's open info, that everybody can see")
     private String openInfo;
+    @Schema(name = "Person's private info that only matched persons can see")
     private String privateInfo;
+    @Schema(name = "User's interests")
     private List<Interest> interests;
-    //TODO: Add private info field, which is only available when users have a match!
-    //TODO: Also add public info. Don't forget to add specific param to sql query!
 }
