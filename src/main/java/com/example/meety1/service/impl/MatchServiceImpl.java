@@ -10,6 +10,7 @@ import com.example.meety1.repository.MatchRepository;
 import com.example.meety1.repository.UserRepository;
 import com.example.meety1.service.MatchService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +79,7 @@ public class MatchServiceImpl implements MatchService {
 
     // TODO: RequesterId here means Principal Id, so it should be changed to that later)
     // Here requesterId is an id of the user who wants to accept invite from responderId
+    @Transactional
     @Override
     public Match acceptMatchByMatchKey(Long requesterId, Long responderId) {
         if (userRepository.findById(requesterId).isEmpty()) {
@@ -116,6 +118,7 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository.save(matchToAccept);
     }
 
+    @Transactional
     public void declineMatchInvite(Long requesterId, Long responderId) {
         if (requesterId > responderId) {
             Long temp = requesterId;

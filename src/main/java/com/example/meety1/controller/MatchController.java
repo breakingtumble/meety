@@ -137,7 +137,8 @@ public class MatchController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @Operation(summary = "Get recommended users", description = "Gets recommendation list of  10 users, it's auto paginating")
+    @Operation(summary = "Get recommended users", description = "Gets recommendation list of  10 users, it's auto paginating" +
+            ", if parameter interest provided return filtered list of users based on specified interests.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User recommendations to show",
                     content = {@Content(mediaType = "application/json",
