@@ -9,7 +9,6 @@ import com.example.meety1.exception.*;
 import com.example.meety1.repository.MatchRepository;
 import com.example.meety1.repository.UserRepository;
 import com.example.meety1.service.MatchService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,12 +18,15 @@ import java.util.Optional;
 
 @Service
 public class MatchServiceImpl implements MatchService {
-    @Autowired
-    private MatchRepository matchRepository;
+    private final MatchRepository matchRepository;
 
     // Maybe need to add service layer
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public MatchServiceImpl(MatchRepository matchRepository, UserRepository userRepository) {
+        this.matchRepository = matchRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public List<Match> getUserMatchEntities(Long id) {
@@ -98,17 +100,16 @@ public class MatchServiceImpl implements MatchService {
             throw new InviteAlreadyAcceptedException("You've already accepted the invite.");
         }
         if (matchToAccept.getPendingFirstSecond()) {
-            if(!keyIsReversed) {
+            if (!keyIsReversed) {
                 throw new UnableToAcceptInviteException("You are unable to accept invite that you have sent to person.");
             } else {
                 matchToAccept.setFriends(true);
             }
         }
         if (matchToAccept.getPendingSecondFirst()) {
-            if(!keyIsReversed) {
+            if (!keyIsReversed) {
                 matchToAccept.setFriends(true);
-            }
-            else {
+            } else {
                 throw new UnableToAcceptInviteException("You are unable to accept invite that you have sent to person.");
             }
         }

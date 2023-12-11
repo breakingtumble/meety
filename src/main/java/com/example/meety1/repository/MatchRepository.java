@@ -5,9 +5,11 @@ import com.example.meety1.entity.MatchKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface MatchRepository extends JpaRepository<Match, MatchKey> {
 
     /*@Query(" SELECT new com.example.meety1.dto.UserMatchDto (ur.id.userSecondId, ur.user2.email, ur.user2.firstName, ur.user2.lastName) " +

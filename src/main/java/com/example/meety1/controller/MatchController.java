@@ -6,8 +6,6 @@ import com.example.meety1.dto.UserMatchDto;
 import com.example.meety1.dto.UserOpenInfoDto;
 import com.example.meety1.entity.Match;
 import com.example.meety1.exception.*;
-import com.example.meety1.repository.MatchRepository;
-import com.example.meety1.repository.UserRepository;
 import com.example.meety1.service.MatchService;
 import com.example.meety1.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +13,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,17 +22,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class MatchController {
-    @Autowired
-    MatchRepository matchRepository;
+    final MatchService matchService;
 
-    @Autowired
-    UserRepository userRepository;
+    final UserService userService;
 
-    @Autowired
-    MatchService matchService;
-
-    @Autowired
-    UserService userService;
+    public MatchController(MatchService matchService, UserService userService) {
+        this.matchService = matchService;
+        this.userService = userService;
+    }
 
     @Operation(summary = "Get current user matches by his Id", description = "Returns the UserMatchDto list by the user id")
     @ApiResponses(value = {
@@ -156,8 +150,14 @@ public class MatchController {
                             schema = @Schema(implementation = ResponseDto.class))})
     })
     @GetMapping("/recommendations")
-    public ResponseEntity<List<UserOpenInfoDto>> getNextTenUsers(@RequestParam("requesterId") Long requesterId) {
-        List<UserOpenInfoDto> users = userService.getNextTenUsers(requesterId);
+    public ResponseEntity<List<UserOpenInfoDto>> getNextTenUsers(@RequestParam("requesterId") Long requesterId,
+                                                                 @RequestParam(value = "interest", required = false) List<String> interests) {
+        List<UserOpenInfoDto> users;
+        if (interests != null) {
+            users = userService.getUsersFiltered(requesterId, interests);
+        } else {
+            users = userService.getNextTenUsers(requesterId);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
