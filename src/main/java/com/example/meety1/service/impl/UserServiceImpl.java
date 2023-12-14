@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,18 +36,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> optionalUser = userRepository.findById(requesterId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            List<User> users = userRepository.getTenUsers(user.getCountedRowsIndex(), user.getId());
-            List<Match> matches = matchService.getUserMatchEntities(requesterId);
-            for (Match match : matches) {
-                User matchedPerson = match.getUser1();
-                if (users.contains(matchedPerson)) {
-                    users.remove(matchedPerson);
-                } else {
-                    matchedPerson = match.getUser2();
-                    users.remove(matchedPerson);
-                }
-            }
-
+            List<User> users = getTenUsers(user);
             if (users.size() == 10) {
                 user.setCountedRowsIndex(user.getCountedRowsIndex() + 10);
                 userRepository.save(user);
@@ -57,7 +47,30 @@ public class UserServiceImpl implements UserService {
                 )).toList();
             }
             if (users.size() < 10 && users.size() > 0) {
-                user.setCountedRowsIndex(0L);
+                while (users.size() != 10) {
+                    user.setCountedRowsIndex(user.getCountedRowsIndex() + 10);
+                    List<User> additionalUsers = getTenUsers(user);
+                    if (additionalUsers == null) {
+                        user.setCountedRowsIndex(0L);
+                        userRepository.save(user);
+                        return users.stream().map((userToMap ->
+                                new UserOpenInfoDto(userToMap.getId(), userToMap.getFirstName(),
+                                        userToMap.getLastName(), userToMap.getEmail(),
+                                        userToMap.getOpenInfo(), userToMap.getInterests())
+                        )).toList();
+                    }
+                    Iterator<User> userIterator = additionalUsers.iterator();
+                    while (userIterator.hasNext()) {
+                        User tempUser = userIterator.next();
+                        if (users.size() == 10) {
+                            break;
+                        }
+                        if (!users.contains(tempUser)) {
+                            users.add(tempUser);
+                            userIterator.remove();
+                        }
+                    }
+                }
                 userRepository.save(user);
                 return users.stream().map((userToMap ->
                         new UserOpenInfoDto(userToMap.getId(), userToMap.getFirstName(),
@@ -80,17 +93,7 @@ public class UserServiceImpl implements UserService {
         }
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            List<User> users = userRepository.getTenUsersFiltered(user.getId(), filteredInterests);
-            List<Match> matches = matchService.getUserMatchEntities(requesterId);
-            for (Match match : matches) {
-                User matchedPerson = match.getUser1();
-                if (users.contains(matchedPerson)) {
-                    users.remove(matchedPerson);
-                } else {
-                    matchedPerson = match.getUser2();
-                    users.remove(matchedPerson);
-                }
-            }
+            List<User> users = getTenUsers(user);
             return users.stream().map((userToMap ->
                     new UserOpenInfoDto(userToMap.getId(), userToMap.getFirstName(),
                             userToMap.getLastName(), userToMap.getEmail(),
@@ -98,5 +101,38 @@ public class UserServiceImpl implements UserService {
             )).toList();
         }
         throw new UserNotFoundException("There is no such user in the system");
+    }
+
+    @Override
+    public User findUserById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        return user.orElse(null);
+    }
+
+    @Override
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+
+    private List<User> getNewUsers(List<User> users, Long userId) {
+        List<Match> matches = matchService.getUserMatchEntities(userId);
+        for (Match match : matches) {
+            User matchedPerson = match.getUser1();
+            if (users.contains(matchedPerson)) {
+                users.remove(matchedPerson);
+            } else {
+                matchedPerson = match.getUser2();
+                users.remove(matchedPerson);
+            }
+        }
+        return users;
+    }
+
+    private List<User> getTenUsers(User user) {
+        List<User> users = userRepository.getTenUsers(user.getCountedRowsIndex(), user.getId());
+        if (users.size() == 0) {
+            return null;
+        }
+        return getNewUsers(users, user.getId());
     }
 }

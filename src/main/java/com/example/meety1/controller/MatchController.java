@@ -22,9 +22,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class MatchController {
-    final MatchService matchService;
+    private final MatchService matchService;
 
-    final UserService userService;
+    private final UserService userService;
 
     public MatchController(MatchService matchService, UserService userService) {
         this.matchService = matchService;
@@ -135,31 +135,6 @@ public class MatchController {
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("Invite was successfully sent."));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    @Operation(summary = "Get recommended users", description = "Gets recommendation list of  10 users, it's auto paginating" +
-            ", if parameter interest provided return filtered list of users based on specified interests.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User recommendations to show",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UserOpenInfoDto.class))}),
-            @ApiResponse(responseCode = "404", description = "User not found",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDto.class))}),
-            @ApiResponse(responseCode = "400", description = "No recommendations found for the user",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDto.class))})
-    })
-    @GetMapping("/recommendations")
-    public ResponseEntity<List<UserOpenInfoDto>> getNextTenUsers(@RequestParam("requesterId") Long requesterId,
-                                                                 @RequestParam(value = "interest", required = false) List<String> interests) {
-        List<UserOpenInfoDto> users;
-        if (interests != null) {
-            users = userService.getUsersFiltered(requesterId, interests);
-        } else {
-            users = userService.getNextTenUsers(requesterId);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(users);
     }
 
     @ExceptionHandler(NoInviteFoundException.class)
