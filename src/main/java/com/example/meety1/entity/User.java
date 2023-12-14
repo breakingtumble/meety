@@ -13,6 +13,17 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "users")
 public class User {
+    public User(String firstName, String lastName, String privateInfo, String openInfo, String email, String password, List<Interest> interests) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.privateInfo = privateInfo;
+        this.openInfo = openInfo;
+        this.email = email;
+        this.password = password;
+        this.interests = interests;
+        this.countedRowsIndex = 0L;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
