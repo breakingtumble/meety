@@ -93,7 +93,17 @@ public class UserServiceImpl implements UserService {
         }
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            List<User> users = getTenUsers(user);
+            List<User> users = userRepository.getTenUsersFiltered(user.getId(), filteredInterests);
+            List<Match> matches = matchService.getUserMatchEntities(requesterId);
+            for (Match match : matches) {
+                User matchedPerson = match.getUser1();
+                if (users.contains(matchedPerson)) {
+                    users.remove(matchedPerson);
+                } else {
+                    matchedPerson = match.getUser2();
+                    users.remove(matchedPerson);
+                }
+            }
             return users.stream().map((userToMap ->
                     new UserOpenInfoDto(userToMap.getId(), userToMap.getFirstName(),
                             userToMap.getLastName(), userToMap.getEmail(),
